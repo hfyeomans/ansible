@@ -1,3 +1,1 @@
-# ansible
-# update from HSM
-# for getting started module
+# ansible projects
