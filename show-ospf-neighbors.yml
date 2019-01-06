@@ -1,0 +1,19 @@
+---
+- name: get ospf neighbors
+  hosts: virl_dmvpn
+  gather_facts: no 
+  connection: network_cli
+  ansible_user: cisco
+
+  roles: 
+    - ansible-network.network-engine
+
+  tasks:
+  - name: get ospf neighbors
+    ios_command:
+      commands:
+        - show ip ospf neighbor
+    register: output
+
+  - name: display the output
+    debug: var=output.stdout
