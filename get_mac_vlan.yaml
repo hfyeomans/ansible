@@ -1,0 +1,27 @@
+---
+- name: parser meta data
+  parser_metadata:
+    version: 1.0
+    command: show_ip_arp
+    network_os: ios
+
+- name: match mac address
+  pattern_match:
+    regex: '([0-9a-f]{4}\.[0-9a-f]{4}\.[0-9a-f]{4})'
+  register: ip_mac
+
+- name: match vlan
+  pattern_match:
+    regex: '((?<=Vlan)[A-Z0-9 _]*$)'
+  register: ip_vlan
+
+- name: build mac_addr facts
+  json_template:
+    template:
+      - key: mac_addr
+        value: "{{ ip_mac.matches.0 }}"
+      - key: vlan
+        value: "{{ ip_vlan.matches.0 }}"
+  register: mac_addr_facts
+  export: true
+  export_as: dict
