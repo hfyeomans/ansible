@@ -1,0 +1,41 @@
+---
+- name: Finding physical switchport
+  hosts: "{{ target }}"
+  strategy: free
+  connection: network_cli
+  gather_facts: no 
+
+  vars:
+    ansible_network_os: ios
+    get_mac_vlan: ~/dev/src/ansible_networking/parsers/get_mac_vlan.yaml
+  
+#  vars_prompt:
+#  - name: "ansible_user"
+#    prompt: "Username"
+#    private: no 
+#  - name: "ansible_ssh_pass"
+#    prompt: "Password"
+  
+  tasks:
+    - name: network-engine roles
+      import_role:
+        name: ansible-network.network-engine
+    - name: Get MAC from IP
+      ios_command:
+        commands:
+          - "show ip arp {{ IP }}"
+      register: ip_mac
+    - name: parse the sh ip arp output
+      command_parser:
+        file: "{{ get_mac_vlan }}"
+        content: "{{ ip_mac.stdout[0] }}"
+      register: mac_addr
+    - name: traceroute the mac address
+      ios_command:
+        commands:
+          - "traceroute mac 0008.e3ff.fd90 {{ mac_addr_facts.mac_addr }} vlan {{ mac_addr_facts.vlan }}"
+      register: traceroute_output
+    - name: Display the results
+      debug: 
+        msg: "{{ traceroute_output }}"
+
