@@ -42,6 +42,6 @@
       register: traceroute_output
     - name: Display the results
       debug: 
-        var: traceroute_output
+        var: traceroute_output.stdout_lines
 
 
